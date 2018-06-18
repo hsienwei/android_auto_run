@@ -90,6 +90,7 @@ def check_is_in_pack():
                 return 2
         else:
             time.sleep(10)    
+            screen_capture('temp')
 
 def check_patch_broke():
     is_match, result = find_template_exist("temp.png", "part_patch_broke.png", 0.9)
