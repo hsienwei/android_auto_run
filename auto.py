@@ -55,6 +55,14 @@ def test_idle():
     return 4    
 
 def check_battle_end_state():
+
+    is_match, result = find_template_exist("temp.png", "part_sure.png", 0.9)
+    if is_match:
+        cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
+        print('cmd:'+ cmd)
+        os.system(cmd)
+        time.sleep(3)
+    screen_capture('temp')
     is_match, result = find_template_exist("temp.png", "part_gopack.png", 0.9)
     if is_match:
         cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
@@ -65,22 +73,23 @@ def check_battle_end_state():
     return 2    
 
 def check_is_in_pack():
-    is_match, result = find_template_exist("temp.png", "part_broke.png", 0.9)
-    if is_match:
-        is_match2, result2 = find_template_exist("temp.png", "part_broke.png", 0.9)
-        if is_match2:
-            cmd = 'adb shell input tap ' + str(result2[0][0]) + ' ' + str(result2[0][1])
-            print('cmd:'+ cmd)
-            os.system(cmd)
-            time.sleep(3)
-            return 6
-        else: 
-            print(result2)
-            print('not find item broke btn')
-            return 2
-    else:
-        print('not find item title') 
-        return 2       
+    while True:
+        is_match, result = find_template_exist("temp.png", "part_packtitle.png", 0.9)
+
+        if is_match:
+            is_match2, result2 = find_template_exist("temp.png", "part_broke.png", 0.9)
+            if is_match2:
+                cmd = 'adb shell input tap ' + str(result2[0][0]) + ' ' + str(result2[0][1])
+                print('cmd:'+ cmd)
+                os.system(cmd)
+                time.sleep(3)
+                return 6
+            else: 
+                print(result2)
+                print('not find item broke btn')
+                return 2
+        else:
+            time.sleep(10)    
 
 def check_patch_broke():
     is_match, result = find_template_exist("temp.png", "part_patch_broke.png", 0.9)
@@ -129,8 +138,57 @@ def broke_item_pass():
             screen_capture('temp')
         else:
             break
-    return 4        
+    return 10        
 
+def back_battle_info():
+    while True:
+        is_match, result = find_template_exist("temp.png", "part_packtitle.png", 0.9)
+        if is_match:
+            cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
+            print('cmd:'+ cmd)
+            os.system(cmd)
+            time.sleep(3)
+            break
+    return 11
+
+def enter_battle():
+    is_match, result = find_template_exist("temp.png", "part_icon_ready_fight.png", 0.9)
+    if is_match:
+        cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
+        print('cmd:'+ cmd)
+        os.system(cmd)
+        time.sleep(3)
+    screen_capture('temp')
+    while True:
+        is_match, result = find_template_exist("temp.png", "part_ready_fight.png", 0.9)
+        if is_match:
+            cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
+            print('cmd:'+ cmd)
+            os.system(cmd)
+            time.sleep(3)
+            break
+    return 12
+
+def enter_battle_repeat():
+    while True:
+        is_match, result = find_template_exist("temp.png", "part_auto_repeat.png", 0.9)
+        if is_match:
+            cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
+            print('cmd:'+ cmd)
+            os.system(cmd)
+            time.sleep(3)
+            break
+    screen_capture('temp')
+    while True:
+        is_match, result = find_template_exist("temp.png", "part_sure.png", 0.9)        
+        if is_match:
+            cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
+            print('cmd:'+ cmd)
+            os.system(cmd)
+            time.sleep(3)
+            break
+
+    return 1 
 
 state_func = { 1: check_is_auto_battle,
                2: idle ,
@@ -140,10 +198,13 @@ state_func = { 1: check_is_auto_battle,
                6: check_patch_broke ,
                7: check_patch_broke_ok,
                8: check_patch_broke_ok_check,
-               9: broke_item_pass
+               9: broke_item_pass,
+               10: back_battle_info,
+               11 :enter_battle,
+               12:enter_battle_repeat
                 }
 
-state = 1
+state = 1 
 while True:
     screen_capture('temp')
     state = state_func[state]() 
