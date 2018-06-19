@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 import os
 import time
+import datetime
+
+DEBUG_TOUCH = True
 
 def screen_capture(file_name):
     os.system('adb shell screencap -p /sdcard/Download/'+ file_name +'.png') 
@@ -26,6 +29,21 @@ def find_template_exist(target_pic_name, template_pic_Name, threshold):
         point.append((test_data[0][0] + w/2, test_data[0][1] + h/2 ))
 
     return is_match, point
+
+def touch_screen(pos):
+    cmd = 'adb shell input tap ' + str(pos[0]) + ' ' + str(pos[1])
+    print('cmd:'+ cmd)
+    os.system(cmd)
+    
+    if DEBUG_TOUCH:
+        template = cv2.imread('temp.png')
+        cv2.rectangle(template,(int(pos[0]), int(pos[1])), (int(pos[0]) + 5, int(pos[1] + 5)), 255, 2)
+
+        ts = time.time()
+        st = datetime.datetime.fromtimestamp(ts).strftime('%Y%m%d%H%M%S')
+        cv2.imwrite(st +'.jpg', template, [cv2.IMWRITE_JPEG_QUALITY, 80])
+    time.sleep(3)
+
 
 
 #ref : http://cuteparrot.pixnet.net/blog/post/190898697-%5Bandroid%5D%E5%9C%A8-adb-shell%E4%B8%8B%E5%88%A9%E7%94%A8-screencap-%E6%8A%93%E5%9C%96%E6%8C%87%E4%BB%A4%E6%8A%93%E5%9C%96
@@ -58,17 +76,11 @@ def check_battle_end_state():
 
     is_match, result = find_template_exist("temp.png", "part_sure.png", 0.9)
     if is_match:
-        cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
-        print('cmd:'+ cmd)
-        os.system(cmd)
-        time.sleep(3)
+        touch_screen(result[0])
     screen_capture('temp')
     is_match, result = find_template_exist("temp.png", "part_gopack.png", 0.9)
     if is_match:
-        cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
-        print('cmd:'+ cmd)
-        os.system(cmd)
-        time.sleep(3)
+        touch_screen(result[0])
         return 5  
     return 2    
 
@@ -77,12 +89,10 @@ def check_is_in_pack():
         is_match, result = find_template_exist("temp.png", "part_packtitle.png", 0.9)
 
         if is_match:
+            time.sleep(10) # 有時會有成就提示造成判斷錯誤
             is_match2, result2 = find_template_exist("temp.png", "part_broke.png", 0.9)
             if is_match2:
-                cmd = 'adb shell input tap ' + str(result2[0][0]) + ' ' + str(result2[0][1])
-                print('cmd:'+ cmd)
-                os.system(cmd)
-                time.sleep(3)
+                touch_screen(result2[0])
                 return 6
             else: 
                 print(result2)
@@ -95,10 +105,7 @@ def check_is_in_pack():
 def check_patch_broke():
     is_match, result = find_template_exist("temp.png", "part_patch_broke.png", 0.9)
     if is_match:
-        cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
-        print('cmd:'+ cmd)
-        os.system(cmd)
-        time.sleep(3)
+        touch_screen(result[0])
         return 7
     else:
         print('not find part_patch_broke') 
@@ -107,10 +114,7 @@ def check_patch_broke():
 def check_patch_broke_ok():
     is_match, result = find_template_exist("temp.png", "part_broke2.png", 0.9)
     if is_match:
-        cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
-        print('cmd:'+ cmd)
-        os.system(cmd)
-        time.sleep(3)
+        touch_screen(result[0])
         return 8
     else:
         print('not find part_patch_broke') 
@@ -119,10 +123,7 @@ def check_patch_broke_ok():
 def check_patch_broke_ok_check():
     is_match, result = find_template_exist("temp.png", "part_ok.png", 0.9)
     if is_match:
-        cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
-        print('cmd:'+ cmd)
-        os.system(cmd)
-        time.sleep(3)
+        touch_screen(result[0])
         return 9
     else:
         print('not find part_patch_broke') 
@@ -132,10 +133,7 @@ def broke_item_pass():
     while True:
         is_match, result = find_template_exist("temp.png", "part_broke_done.png", 0.9)
         if is_match:
-            cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
-            print('cmd:'+ cmd)
-            os.system(cmd)
-            time.sleep(3)
+            touch_screen(result[0])
             screen_capture('temp')
         else:
             break
@@ -145,28 +143,19 @@ def back_battle_info():
     while True:
         is_match, result = find_template_exist("temp.png", "part_packtitle.png", 0.9)
         if is_match:
-            cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
-            print('cmd:'+ cmd)
-            os.system(cmd)
-            time.sleep(3)
+            touch_screen(result[0])
             break
     return 11
 
 def enter_battle():
     is_match, result = find_template_exist("temp.png", "part_icon_ready_fight.png", 0.9)
     if is_match:
-        cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
-        print('cmd:'+ cmd)
-        os.system(cmd)
-        time.sleep(3)
+        touch_screen(result[0])
     screen_capture('temp')
     while True:
         is_match, result = find_template_exist("temp.png", "part_ready_fight.png", 0.9)
         if is_match:
-            cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
-            print('cmd:'+ cmd)
-            os.system(cmd)
-            time.sleep(3)
+            touch_screen(result[0])
             break
     return 12
 
@@ -174,19 +163,13 @@ def enter_battle_repeat():
     while True:
         is_match, result = find_template_exist("temp.png", "part_auto_repeat.png", 0.9)
         if is_match:
-            cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
-            print('cmd:'+ cmd)
-            os.system(cmd)
-            time.sleep(3)
+            touch_screen(result[0])
             break
     screen_capture('temp')
     while True:
         is_match, result = find_template_exist("temp.png", "part_sure.png", 0.9)        
         if is_match:
-            cmd = 'adb shell input tap ' + str(result[0][0]) + ' ' + str(result[0][1])
-            print('cmd:'+ cmd)
-            os.system(cmd)
-            time.sleep(3)
+            touch_screen(result[0])
             break
 
     return 1 
@@ -205,12 +188,16 @@ state_func = { 1: check_is_auto_battle,
                12:enter_battle_repeat
                 }
 
-state = 1 
-while True:
-    screen_capture('temp')
-    state = state_func[state]() 
+
+
+if __name__ == "__main__":
+    state = 1
+    while True:
+        screen_capture('temp')
+        state = state_func[state]() 
+        
+    print('end')
     
-print('end')
 
 
 #ref : http://bigdata.51cto.com/art/201709/552579.htm  阈值檢測
